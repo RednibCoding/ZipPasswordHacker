@@ -6,8 +6,10 @@ ZipPasswordHacker.py
 
 
 Zip dictonary password hacker
+
 03.12.2016
-Michael Frank
+
+Mumpiz
 
 Pyhon 3.5.2
 
