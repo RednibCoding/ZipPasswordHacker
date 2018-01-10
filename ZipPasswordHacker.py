@@ -1,7 +1,7 @@
 
 # Zip dictonary password hacker
 # 03.12.2016
-# Michael Frank
+# Michael Binder
 #
 # Uses a dictonary ("passwords.txt") where the passwords are stored
 # to hack the password of a zip file ("test.zip")
