@@ -9,7 +9,7 @@ Zip dictonary password hacker
 
 03.12.2016
 
-Mumpiz
+Michael Binder
 
 Pyhon 3.5.2
 
