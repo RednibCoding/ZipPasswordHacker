@@ -14,37 +14,60 @@
 
 
 import zipfile
-import itertools
-import string
-import traceback
-from threading import Thread
+from multiprocessing.pool import ThreadPool
 
 
-zipFile = zipfile.ZipFile("test.zip") # the zip file you want to crack
+class MultiThread():
+    __thread_pool = None
+
+    @classmethod
+    def begin(cls, max_threads):
+        MultiThread.__thread_pool = ThreadPool(max_threads)
+
+    @classmethod
+    def end(cls):
+        MultiThread.__thread_pool.close()
+        MultiThread.__thread_pool.join()
+
+    def __init__(self, target=None, args:tuple=()):
+        self.__target = target
+        self.__args = args
+
+    def run(self):
+        try:
+            result = MultiThread.__thread_pool.apply_async(self.__target, args=self.__args)
+            return result.get()
+        except:
+            pass
 
 
-def dictionary():
-    passwords = open("passwords.txt") # The txt file where the passwords are stored to check
-    for line in passwords.readlines():
-        pwd = line.strip("\n")
-        t = Thread(target = crack, args = (zipFile, pwd))
-        t.start()
-        
-
-def bruteforce():
-    myLetters = string.ascii_letters + string.digits + string.punctuation
-    for i in range(3,10):
-        for j in map("".join, itertools.product(myLetters, repeat=i)):
-            t = Thread(target = crack, args = (zipFile, j))
-            t.start()
+def dictionary_attack(zip_path, password_file_path):
+    zipFile = zipfile.ZipFile(zip_path)
+    passwords = open_password_file(password_file_path)
+    MultiThread.begin(400)
+    for pwd in passwords:
+        t = MultiThread(target=extract, args=(zipFile, pwd))
+        success = t.run()
+        if success: return
+    MultiThread.end()
 
 
-def crack(zip, pwd):
+def extract(zip, pwd):
     try:
-        zip.extractall(pwd = str.encode(pwd))
-        print("Success: Posssible Password is " + pwd)
+        zip.extractall(pwd=str.encode(pwd))
+        print("Success! Possible Password: " + pwd)
+        return True
     except:
-        pass
+        return False
 
-dictionary()
+def open_password_file(password_file_path):
+    with open(password_file_path, "r") as password_file:
+        passwords = []
+        for line in password_file:
+            password = line.strip("\n")
+            passwords.append(password)
+    return passwords
+
+
+dictionary_attack("test.zip", "passwords.txt")
 input()
